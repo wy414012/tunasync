@@ -1,0 +1,69 @@
+name: CI
+
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+
+jobs:
+  
+  build-macos:
+    name: 使用macOS构建
+    runs-on: macos-11
+    env:
+        JOB_TYPE: BUILD
+
+    steps:
+      
+      - uses: actions/checkout@v2
+
+      - name: 安装依赖环境
+        run: brew install go zip unzip
+
+      - name: 开始构建工具
+      - run: ./build.sh
+      - name: 打包上传工作件
+        uses: actions/upload-artifact@v2
+        with:
+          name: tunasync_macOS_build
+          path: build/*.zip
+  
+      - name: 上传发布版本
+        if: github.event_name == 'release'
+        uses: wy414012/upload-release-action@483c1e56f95e88835747b1c7c60581215016cbf2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/*.zip
+          tag: ${{ github.ref }}
+          file_glob: true
+          
+  build-linux:
+    name: linux-gcc构建
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 安装依赖环境
+        run: |
+          sudo apt-get update
+          sudo apt-get install golang zip unzip
+      - name: 开始构建工具
+      - run: ./build.sh
+      - name: 打包上传构建工件
+        uses: actions/upload-artifact@v2
+        with:
+          name: tunasync_Linux_build
+          path: build/*.zip
+
+      - name: 上传发布版本
+        if: github.event_name == 'release'
+        uses: wy414012/upload-release-action@483c1e56f95e88835747b1c7c60581215016cbf2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/*.zip
+          tag: ${{ github.ref }}
+          file_glob: true
