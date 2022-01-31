@@ -12,8 +12,8 @@ on:
 jobs:
   
   build-macos:
-    name: 使用macOS构建
-    runs-on: macos-11
+    name: macos-golang
+    runs-on: macos-latest
     env:
         JOB_TYPE: BUILD
 
@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: 安装依赖环境
-        run: brew install go zip unzip
+        run: brew install zip unzip
 
       - name: 开始构建工具
         run: ./build.sh
@@ -42,7 +42,7 @@ jobs:
           file_glob: true
           
   build-linux:
-    name: linux-gcc构建
+    name: linux-golang
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
