@@ -10,9 +10,8 @@ for i in linux-amd64 linux-arm64; do
     make ARCH=$i all
     done
 mkdir -p build
-cd build
-zip -qr -FS ./"tunasync-$NAME-linux-amd64.zip" ../build-linux-amd64/*
-zip -qr -FS ./"tunasync-$NAME-linux-arm64.zip" ../build-linux-arm64/*
+zip -qr -FS ./build/"tunasync-$NAME-linux-amd64.zip" ./build-linux-amd64/*
+zip -qr -FS ./build/"tunasync-$NAME-linux-arm64.zip" ./build-linux-arm64/*
 }
 else
 if [ "$OSID" = "Linux" ]; then
@@ -20,10 +19,9 @@ if [ "$OSID" = "Linux" ]; then
 for i in linux-amd64 linux-arm64; do
     make ARCH=$i all
     done
-    mkdir -p build
-    cd build
-zip -qr -FS ./"tunasync-$NAME-linux-amd64.zip" ../build-linux-amd64/*
-zip -qr -FS ./"tunasync-$NAME-linux-arm64.zip" ../build-linux-arm64/*
+mkdir -p build
+zip -qr -FS ./build/"tunasync-$NAME-linux-amd64.zip" ./build-linux-amd64/*
+zip -qr -FS ./build/"tunasync-$NAME-linux-arm64.zip" ./build-linux-arm64/*
     }
 fi
 fi
