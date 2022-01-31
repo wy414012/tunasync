@@ -12,7 +12,7 @@ on:
 jobs:
   
   build-macos:
-    name: macos-golang
+    name: macos-go-build
     runs-on: macos-latest
     env:
         JOB_TYPE: BUILD
@@ -31,18 +31,9 @@ jobs:
         with:
           name: tunasync_macOS_build
           path: build/*.zip
-  
-      - name: 上传发布版本
-        if: github.event_name == 'release'
-        uses: wy414012/upload-release-action@483c1e56f95e88835747b1c7c60581215016cbf2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/*.zip
-          tag: ${{ github.ref }}
-          file_glob: true
-          
+            
   build-linux:
-    name: linux-golang
+    name: linux-go-build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
