@@ -10,6 +10,8 @@ for i in linux-amd64 linux-arm64; do
     make ARCH=$i all
     done
 mkdir -p build
+cp ./docs/zh_CN/{worker.conf,manager.conf} ./build-linux-amd64/
+cp ./docs/zh_CN/{worker.conf,manager.conf} ./build-linux-arm64/
 zip -qr -FS ./build/"tunasync-$NAME-linux-amd64.zip" ./build-linux-amd64/*
 zip -qr -FS ./build/"tunasync-$NAME-linux-arm64.zip" ./build-linux-arm64/*
 }
@@ -20,6 +22,8 @@ for i in linux-amd64 linux-arm64; do
     make ARCH=$i all
     done
 mkdir -p build
+cp ./docs/zh_CN/{worker.conf,manager.conf} ./build-linux-amd64/
+cp ./docs/zh_CN/{worker.conf,manager.conf} ./build-linux-arm64/
 zip -qr -FS ./build/"tunasync-$NAME-linux-amd64.zip" ./build-linux-amd64/*
 zip -qr -FS ./build/"tunasync-$NAME-linux-arm64.zip" ./build-linux-arm64/*
     }
