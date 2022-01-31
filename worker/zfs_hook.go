@@ -27,9 +27,9 @@ func (z *zfsHook) printHelpMessage() {
 	zfsDataset := fmt.Sprintf("%s/%s", z.zpool, z.provider.Name())
 	zfsDataset = strings.ToLower(zfsDataset)
 	workingDir := z.provider.WorkingDir()
-	logger.Infof("You may create the ZFS dataset with:")
-	logger.Infof("    zfs create '%s'", zfsDataset)
-	logger.Infof("    zfs set mountpoint='%s' '%s'", workingDir, zfsDataset)
+	logger.Infof("您可以使用创建 ZFS 数据集:")
+	logger.Infof("    zfs 创建 '%s'", zfsDataset)
+	logger.Infof("    zfs 设置挂载点='%s' '%s'", workingDir, zfsDataset)
 	usr, err := user.Current()
 	if err != nil || usr.Uid == "0" {
 		return

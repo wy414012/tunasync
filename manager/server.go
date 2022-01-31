@@ -52,7 +52,7 @@ func GetTUNASyncManager(cfg *Config) *Manager {
 	if cfg.Files.CACert != "" {
 		httpClient, err := CreateHTTPClient(cfg.Files.CACert)
 		if err != nil {
-			logger.Errorf("Error initializing HTTP client: %s", err.Error())
+			logger.Errorf("初始化 HTTP 客户端时出错: %s", err.Error())
 			return nil
 		}
 		s.httpClient = httpClient
@@ -61,7 +61,7 @@ func GetTUNASyncManager(cfg *Config) *Manager {
 	if cfg.Files.DBFile != "" {
 		adapter, err := makeDBAdapter(cfg.Files.DBType, cfg.Files.DBFile)
 		if err != nil {
-			logger.Errorf("Error initializing DB adapter: %s", err.Error())
+			logger.Errorf("初始化 DBtype 时出错: %s", err.Error())
 			return nil
 		}
 		s.setDBAdapter(adapter)
@@ -135,7 +135,7 @@ func (s *Manager) listAllJobs(c *gin.Context) {
 	mirrorStatusList, err := s.adapter.ListAllMirrorStatus()
 	s.rwmu.RUnlock()
 	if err != nil {
-		err := fmt.Errorf("failed to list all mirror status: %s",
+		err := fmt.Errorf("未能列出所有镜像状态: %s",
 			err.Error(),
 		)
 		c.Error(err)
@@ -158,7 +158,7 @@ func (s *Manager) flushDisabledJobs(c *gin.Context) {
 	err := s.adapter.FlushDisabledJobs()
 	s.rwmu.Unlock()
 	if err != nil {
-		err := fmt.Errorf("failed to flush disabled jobs: %s",
+		err := fmt.Errorf("未能刷新禁用的作业: %s",
 			err.Error(),
 		)
 		c.Error(err)
@@ -175,7 +175,7 @@ func (s *Manager) deleteWorker(c *gin.Context) {
 	err := s.adapter.DeleteWorker(workerID)
 	s.rwmu.Unlock()
 	if err != nil {
-		err := fmt.Errorf("failed to delete worker: %s",
+		err := fmt.Errorf("未能删除工作流: %s",
 			err.Error(),
 		)
 		c.Error(err)
@@ -193,7 +193,7 @@ func (s *Manager) listWorkers(c *gin.Context) {
 	workers, err := s.adapter.ListWorkers()
 	s.rwmu.RUnlock()
 	if err != nil {
-		err := fmt.Errorf("failed to list workers: %s",
+		err := fmt.Errorf("未能列出工作流: %s",
 			err.Error(),
 		)
 		c.Error(err)
@@ -221,7 +221,7 @@ func (s *Manager) registerWorker(c *gin.Context) {
 	_worker.LastRegister = time.Now()
 	newWorker, err := s.adapter.CreateWorker(_worker)
 	if err != nil {
-		err := fmt.Errorf("failed to register worker: %s",
+		err := fmt.Errorf("未能注册工作流: %s",
 			err.Error(),
 		)
 		c.Error(err)
@@ -241,7 +241,7 @@ func (s *Manager) listJobsOfWorker(c *gin.Context) {
 	mirrorStatusList, err := s.adapter.ListMirrorStatus(workerID)
 	s.rwmu.RUnlock()
 	if err != nil {
-		err := fmt.Errorf("failed to list jobs of worker %s: %s",
+		err := fmt.Errorf("未能列出工人的工作 %s: %s",
 			workerID, err.Error(),
 		)
 		c.Error(err)
@@ -267,7 +267,7 @@ func (s *Manager) updateSchedulesOfWorker(c *gin.Context) {
 		if len(mirrorName) == 0 {
 			s.returnErrJSON(
 				c, http.StatusBadRequest,
-				errors.New("Mirror Name should not be empty"),
+				errors.New("镜像名称不能为空"),
 			)
 		}
 
@@ -312,7 +312,7 @@ func (s *Manager) updateJobOfWorker(c *gin.Context) {
 	if len(mirrorName) == 0 {
 		s.returnErrJSON(
 			c, http.StatusBadRequest,
-			errors.New("Mirror Name should not be empty"),
+			errors.New("镜像名称不能为空"),
 		)
 	}
 
@@ -471,5 +471,5 @@ func (s *Manager) handleClientCmd(c *gin.Context) {
 		return
 	}
 	// TODO: check response for success
-	c.JSON(http.StatusOK, gin.H{_infoKey: "successfully send command to worker " + workerID})
+	c.JSON(http.StatusOK, gin.H{_infoKey: "成功向工作流发送命令 " + workerID})
 }

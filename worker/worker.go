@@ -48,7 +48,7 @@ func NewTUNASyncWorker(cfg *Config) *Worker {
 	if cfg.Manager.CACert != "" {
 		httpClient, err := CreateHTTPClient(cfg.Manager.CACert)
 		if err != nil {
-			logger.Errorf("Error initializing HTTP client: %s", err.Error())
+			logger.Errorf("初始化 HTTP 客户端时出错: %s", err.Error())
 			return nil
 		}
 		w.httpClient = httpClient
@@ -56,7 +56,7 @@ func NewTUNASyncWorker(cfg *Config) *Worker {
 
 	if cfg.Cgroup.Enable {
 		if err := initCgroup(&cfg.Cgroup); err != nil {
-			logger.Errorf("Error initializing Cgroup: %s", err.Error())
+			logger.Errorf("初始化 Cgroup 时出错: %s", err.Error())
 			return nil
 		}
 	}
@@ -75,14 +75,14 @@ func (w *Worker) Run() {
 // Halt stops all jobs
 func (w *Worker) Halt() {
 	w.L.Lock()
-	logger.Notice("Stopping all the jobs")
+	logger.Notice("停止所有作业")
 	for _, job := range w.jobs {
 		if job.State() != stateDisabled {
 			job.ctrlChan <- jobHalt
 		}
 	}
 	jobsDone.Wait()
-	logger.Notice("All the jobs are stopped")
+	logger.Notice("所有作业都停止")
 	w.L.Unlock()
 	close(w.exit)
 }
@@ -93,7 +93,7 @@ func (w *Worker) Halt() {
 func (w *Worker) ReloadMirrorConfig(newMirrors []mirrorConfig) {
 	w.L.Lock()
 	defer w.L.Unlock()
-	logger.Info("Reloading mirror configs")
+	logger.Info("重新加载镜像配置")
 
 	oldMirrors := w.cfg.Mirrors
 	difference := diffMirrorConfig(oldMirrors, newMirrors)
@@ -106,21 +106,21 @@ func (w *Worker) ReloadMirrorConfig(newMirrors []mirrorConfig) {
 		name := op.mirCfg.Name
 		job, ok := w.jobs[name]
 		if !ok {
-			logger.Warningf("Job %s not found", name)
+			logger.Warningf("工作流 %s 未找到", name)
 			continue
 		}
 		switch op.diffOp {
 		case diffDelete:
 			w.disableJob(job)
 			delete(w.jobs, name)
-			logger.Noticef("Deleted job %s", name)
+			logger.Noticef("删除的工作流 %s", name)
 		case diffModify:
 			jobState := job.State()
 			w.disableJob(job)
 			// set new provider
 			provider := newMirrorProvider(op.mirCfg, w.cfg)
 			if err := job.SetProvider(provider); err != nil {
-				logger.Errorf("Error setting job provider of %s: %s", name, err.Error())
+				logger.Errorf("设置作业提供者时出错 %s: %s", name, err.Error())
 				continue
 			}
 
@@ -135,7 +135,7 @@ func (w *Worker) ReloadMirrorConfig(newMirrors []mirrorConfig) {
 				go job.Run(w.managerChan, w.semaphore)
 				w.schedule.AddJob(time.Now(), job)
 			}
-			logger.Noticef("Reloaded job %s", name)
+			logger.Noticef("重新加载作业 %s", name)
 		}
 	}
 	// for added new jobs, just start new jobs
@@ -150,7 +150,7 @@ func (w *Worker) ReloadMirrorConfig(newMirrors []mirrorConfig) {
 		job.SetState(stateNone)
 		go job.Run(w.managerChan, w.semaphore)
 		w.schedule.AddJob(time.Now(), job)
-		logger.Noticef("New job %s", job.Name())
+		logger.Noticef("新工作流 %s", job.Name())
 	}
 
 	w.cfg.Mirrors = newMirrors
@@ -184,11 +184,11 @@ func (w *Worker) makeHTTPServer() {
 		var cmd WorkerCmd
 
 		if err := c.BindJSON(&cmd); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"msg": "Invalid request"})
+			c.JSON(http.StatusBadRequest, gin.H{"msg": "非法请求"})
 			return
 		}
 
-		logger.Noticef("Received command: %v", cmd)
+		logger.Noticef("收到命令: %v", cmd)
 
 		if cmd.MirrorID == "" {
 			// worker-level commands
@@ -198,7 +198,7 @@ func (w *Worker) makeHTTPServer() {
 				pid := os.Getpid()
 				syscall.Kill(pid, syscall.SIGHUP)
 			default:
-				c.JSON(http.StatusNotAcceptable, gin.H{"msg": "Invalid Command"})
+				c.JSON(http.StatusNotAcceptable, gin.H{"msg": "无效命令"})
 				return
 			}
 		}
@@ -206,7 +206,7 @@ func (w *Worker) makeHTTPServer() {
 		// job level comands
 		job, ok := w.jobs[cmd.MirrorID]
 		if !ok {
-			c.JSON(http.StatusNotFound, gin.H{"msg": fmt.Sprintf("Mirror ``%s'' not found", cmd.MirrorID)})
+			c.JSON(http.StatusNotFound, gin.H{"msg": fmt.Sprintf("镜像 ``%s'' 未找到", cmd.MirrorID)})
 			return
 		}
 
@@ -241,7 +241,7 @@ func (w *Worker) makeHTTPServer() {
 		case CmdPing:
 			// empty
 		default:
-			c.JSON(http.StatusNotAcceptable, gin.H{"msg": "Invalid Command"})
+			c.JSON(http.StatusNotAcceptable, gin.H{"msg": "无效命令"})
 			return
 		}
 
@@ -297,7 +297,7 @@ func (w *Worker) runSchedule() {
 				job.SetState(stateNone)
 				go job.Run(w.managerChan, w.semaphore)
 				stime := m.LastUpdate.Add(job.provider.Interval())
-				logger.Debugf("Scheduling job %s @%s", job.Name(), stime.Format("2006-01-02 15:04:05"))
+				logger.Debugf("调度工作流 %s @%s", job.Name(), stime.Format("2006-01-02 15:04:05"))
 				w.schedule.AddJob(stime, job)
 			}
 		}
@@ -326,12 +326,12 @@ func (w *Worker) runSchedule() {
 			job, ok := w.jobs[jobMsg.name]
 			w.L.Unlock()
 			if !ok {
-				logger.Warningf("Job %s not found", jobMsg.name)
+				logger.Warningf("工作流 %s 未找到", jobMsg.name)
 				continue
 			}
 
 			if (job.State() != stateReady) && (job.State() != stateHalting) {
-				logger.Infof("Job %s state is not ready, skip adding new schedule", jobMsg.name)
+				logger.Infof("工作流 %s 状态未就绪，跳过添加新计划", jobMsg.name)
 				continue
 			}
 
@@ -346,7 +346,7 @@ func (w *Worker) runSchedule() {
 			if jobMsg.schedule {
 				schedTime := time.Now().Add(job.provider.Interval())
 				logger.Noticef(
-					"Next scheduled time for %s: %s",
+					"下次同步时间 %s: %s",
 					job.Name(),
 					schedTime.Format("2006-01-02 15:04:05"),
 				)
@@ -368,7 +368,7 @@ func (w *Worker) runSchedule() {
 			for {
 				select {
 				case jobMsg := <-w.managerChan:
-					logger.Debugf("status update from %s", jobMsg.name)
+					logger.Debugf("状态更新来自 %s", jobMsg.name)
 					job, ok := w.jobs[jobMsg.name]
 					if !ok {
 						continue
@@ -407,14 +407,14 @@ func (w *Worker) registerWorker() {
 
 	for _, root := range w.cfg.Manager.APIBaseList() {
 		url := fmt.Sprintf("%s/workers", root)
-		logger.Debugf("register on manager url: %s", url)
+		logger.Debugf("管理服务器注册地址: %s", url)
 		for retry := 10; retry > 0; {
 			if _, err := PostJSON(url, msg, w.httpClient); err != nil {
-				logger.Errorf("Failed to register worker")
+				logger.Errorf("注册工作流失败")
 				retry--
 				if retry > 0 {
 					time.Sleep(1 * time.Second)
-					logger.Noticef("Retrying... (%d)", retry)
+					logger.Noticef("重试... (%d)", retry)
 				}
 			} else {
 				break
@@ -431,7 +431,7 @@ func (w *Worker) updateStatus(job *mirrorJob, jobMsg jobMessage) {
 		IsMaster: p.IsMaster(),
 		Status:   jobMsg.status,
 		Upstream: p.Upstream(),
-		Size:     "unknown",
+		Size:     "未知",
 		ErrorMsg: jobMsg.msg,
 	}
 
@@ -445,9 +445,9 @@ func (w *Worker) updateStatus(job *mirrorJob, jobMsg jobMessage) {
 		url := fmt.Sprintf(
 			"%s/workers/%s/jobs/%s", root, w.Name(), jobMsg.name,
 		)
-		logger.Debugf("reporting on manager url: %s", url)
+		logger.Debugf("上传管理服务器地址: %s", url)
 		if _, err := PostJSON(url, smsg, w.httpClient); err != nil {
-			logger.Errorf("Failed to update mirror(%s) status: %s", jobMsg.name, err.Error())
+			logger.Errorf("更新镜像失败(%s) 状态: %s", jobMsg.name, err.Error())
 		}
 	}
 }
@@ -466,9 +466,9 @@ func (w *Worker) updateSchedInfo(schedInfo []jobScheduleInfo) {
 		url := fmt.Sprintf(
 			"%s/workers/%s/schedules", root, w.Name(),
 		)
-		logger.Debugf("reporting on manager url: %s", url)
+		logger.Debugf("上传管理服务器地址: %s", url)
 		if _, err := PostJSON(url, msg, w.httpClient); err != nil {
-			logger.Errorf("Failed to upload schedules: %s", err.Error())
+			logger.Errorf("未能上传时间表: %s", err.Error())
 		}
 	}
 }
@@ -480,7 +480,7 @@ func (w *Worker) fetchJobStatus() []MirrorStatus {
 	url := fmt.Sprintf("%s/workers/%s/jobs", apiBase, w.Name())
 
 	if _, err := GetJSON(url, &mirrorList, w.httpClient); err != nil {
-		logger.Errorf("Failed to fetch job status: %s", err.Error())
+		logger.Errorf("获取作业状态失败: %s", err.Error())
 	}
 
 	return mirrorList

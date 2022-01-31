@@ -15,26 +15,26 @@ import (
 )
 
 var rsyncExitValues = map[int]string{
-	0:  "Success",
-	1:  "Syntax or usage error",
-	2:  "Protocol incompatibility",
-	3:  "Errors selecting input/output files, dirs",
-	4:  "Requested action not supported: an attempt was made to manipulate 64-bit files on a platform that cannot support them; or an option was specified that is supported by the client and not by the server.",
-	5:  "Error starting client-server protocol",
-	6:  "Daemon unable to append to log-file",
-	10: "Error in socket I/O",
-	11: "Error in file I/O",
-	12: "Error in rsync protocol data stream",
-	13: "Errors with program diagnostics",
-	14: "Error in IPC code",
-	20: "Received SIGUSR1 or SIGINT",
-	21: "Some error returned by waitpid()",
-	22: "Error allocating core memory buffers",
-	23: "Partial transfer due to error",
-	24: "Partial transfer due to vanished source files",
-	25: "The --max-delete limit stopped deletions",
-	30: "Timeout in data send/receive",
-	35: "Timeout waiting for daemon connection",
+	0:  "成功",
+	1:  "语法或用法错误",
+	2:  "协议不兼容",
+	3:  "选择输入/输出文件、目录时出错",
+	4:  "不支持请求的操作：试图在不支持的平台上操作 64 位文件； 或者指定了客户端支持而不是服务器支持的选项。",
+	5:  "启动客户端-服务器协议时出错",
+	6:  "守护进程无法附加到日志文件",
+	10: "套接字 I/O 错误",
+	11: "文件 I/O 错误",
+	12: "rsync 协议数据流错误",
+	13: "程序诊断错误",
+	14: "IPC 代码错误",
+	20: "收到 SIGUSR1 或 SIGINT",
+	21: "waitpid() 返回一些错误",
+	22: "分配核心内存缓冲区时出错",
+	23: "由于错误导致部分转移",
+	24: "由于源文件消失而导致部分传输",
+	25: "--max-delete 限制停止删除",
+	30: "数据发送/接收超时",
+	35: "等待守护进程连接超时",
 }
 
 // GetTLSConfig generate tls.Config from CAFile
@@ -45,7 +45,7 @@ func GetTLSConfig(CAFile string) (*tls.Config, error) {
 	}
 	caCertPool := x509.NewCertPool()
 	if ok := caCertPool.AppendCertsFromPEM(caCert); !ok {
-		return nil, errors.New("Failed to add CA to pool")
+		return nil, errors.New("无法将 CA 添加到池中")
 	}
 
 	tlsConfig := &tls.Config{
@@ -101,7 +101,7 @@ func GetJSON(url string, obj interface{}, client *http.Client) (*http.Response, 
 		return resp, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return resp, errors.New("HTTP status code is not 200")
+		return resp, errors.New("HTTP 状态码不是 200")
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -114,7 +114,7 @@ func GetJSON(url string, obj interface{}, client *http.Client) (*http.Response, 
 // FindAllSubmatchInFile calls re.FindAllSubmatch to find matches in given file
 func FindAllSubmatchInFile(fileName string, re *regexp.Regexp) (matches [][][]byte, err error) {
 	if fileName == "/dev/null" {
-		err = errors.New("Invalid log file")
+		err = errors.New("无效的日志文件")
 		return
 	}
 	if content, err := ioutil.ReadFile(fileName); err == nil {
@@ -148,7 +148,7 @@ func TranslateRsyncErrorCode(cmdErr error) (exitCode int, msg string) {
 		exitCode = exiterr.ExitCode()
 		strerr, valid := rsyncExitValues[exitCode]
 		if valid {
-			msg = fmt.Sprintf("rsync error: %s", strerr)
+			msg = fmt.Sprintf("rsync 错误: %s", strerr)
 		}
 	}
 	return

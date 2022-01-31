@@ -36,7 +36,7 @@ type rsyncProvider struct {
 func newRsyncProvider(c rsyncConfig) (*rsyncProvider, error) {
 	// TODO: check config options
 	if !strings.HasSuffix(c.upstreamURL, "/") {
-		return nil, errors.New("rsync upstream URL should ends with /")
+		return nil, errors.New("rsync 上游 URL 应以 /")
 	}
 	if c.retry == 0 {
 		c.retry = defaultMaxRetry
@@ -64,10 +64,10 @@ func newRsyncProvider(c rsyncConfig) (*rsyncProvider, error) {
 	if c.password != "" {
 		provider.rsyncEnv["RSYNC_PASSWORD"] = c.password
 	}
-
+	//rsync支持参数
 	options := []string{
-		"-aHvh", "--no-o", "--no-g", "--stats",
-		"--filter" , "risk .~tmp~/", "--exclude", ".~tmp~/",
+		"-avtz", "--no-o", "--no-g", "--stats",
+		"--filter", "risk .~tmp~/", "--exclude", ".~tmp~/",
 		"--delete", "--delete-after", "--delay-updates",
 		"--safe-links",
 	}
@@ -126,7 +126,7 @@ func (p *rsyncProvider) Run(started chan empty) error {
 	if err := p.Wait(); err != nil {
 		code, msg := internal.TranslateRsyncErrorCode(err)
 		if code != 0 {
-			logger.Debug("Rsync exitcode %d (%s)", code, msg)
+			logger.Debug("rsync 退出代码 %d (%s)", code, msg)
 			if p.logFileFd != nil {
 				p.logFileFd.WriteString(msg + "\n")
 			}
@@ -142,7 +142,7 @@ func (p *rsyncProvider) Start() error {
 	defer p.Unlock()
 
 	if p.IsRunning() {
-		return errors.New("provider is currently running")
+		return errors.New("提供者当前正在运行")
 	}
 
 	command := []string{p.rsyncCmd}
@@ -158,6 +158,6 @@ func (p *rsyncProvider) Start() error {
 		return err
 	}
 	p.isRunning.Store(true)
-	logger.Debugf("set isRunning to true: %s", p.Name())
+	logger.Debugf("将 isRunning 设置为 true: %s", p.Name())
 	return nil
 }

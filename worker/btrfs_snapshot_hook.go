@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 package worker
@@ -38,15 +39,15 @@ func (h *btrfsSnapshotHook) preJob() error {
 		// create subvolume
 		err := btrfs.CreateSubVolume(path)
 		if err != nil {
-			logger.Errorf("failed to create Btrfs subvolume %s: %s", path, err.Error())
+			logger.Errorf("未能创建 Btrfs 子卷 %s: %s", path, err.Error())
 			return err
 		}
-		logger.Noticef("created new Btrfs subvolume %s", path)
+		logger.Noticef("创建了新的 Btrfs 子卷 %s", path)
 	} else {
 		if is, err := btrfs.IsSubVolume(path); err != nil {
 			return err
 		} else if !is {
-			return fmt.Errorf("path %s exists but isn't a Btrfs subvolume", path)
+			return fmt.Errorf("路径 %s 存在但不是 Btrfs 子卷", path)
 		}
 	}
 	return nil
@@ -67,22 +68,22 @@ func (h *btrfsSnapshotHook) postSuccess() error {
 		if err != nil {
 			return err
 		} else if !isSubVol {
-			return fmt.Errorf("path %s exists and isn't a Btrfs snapshot", h.mirrorSnapshotPath)
+			return fmt.Errorf("路径 %s 存在且不是 Btrfs 快照", h.mirrorSnapshotPath)
 		}
 		// is old snapshot => delete it
 		if err := btrfs.DeleteSubVolume(h.mirrorSnapshotPath); err != nil {
-			logger.Errorf("failed to delete old Btrfs snapshot %s", h.mirrorSnapshotPath)
+			logger.Errorf("未能删除旧的 Btrfs 快照 %s", h.mirrorSnapshotPath)
 			return err
 		}
-		logger.Noticef("deleted old snapshot %s", h.mirrorSnapshotPath)
+		logger.Noticef("删除旧快照 %s", h.mirrorSnapshotPath)
 	}
 	// create a new writable snapshot
 	// (the snapshot is writable so that it can be deleted easily)
 	if err := btrfs.SnapshotSubVolume(h.provider.WorkingDir(), h.mirrorSnapshotPath, false); err != nil {
-		logger.Errorf("failed to create new Btrfs snapshot %s", h.mirrorSnapshotPath)
+		logger.Errorf("未能创建新的 Btrfs 快照 %s", h.mirrorSnapshotPath)
 		return err
 	}
-	logger.Noticef("created new Btrfs snapshot %s", h.mirrorSnapshotPath)
+	logger.Noticef("创建了新的 Btrfs 快照 %s", h.mirrorSnapshotPath)
 	return nil
 }
 

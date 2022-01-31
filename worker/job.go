@@ -79,7 +79,7 @@ func (m *mirrorJob) SetState(state uint32) {
 func (m *mirrorJob) SetProvider(provider mirrorProvider) error {
 	s := m.State()
 	if (s != stateNone) && (s != stateDisabled) {
-		return fmt.Errorf("Provider cannot be switched when job state is %d", s)
+		return fmt.Errorf("作业状态为 %d 时无法切换提供者", s)
 	}
 	m.provider = provider
 	return nil
@@ -125,7 +125,7 @@ func (m *mirrorJob) Run(managerChan chan<- jobMessage, semaphore chan empty) err
 		defer close(jobDone)
 
 		managerChan <- jobMessage{tunasync.PreSyncing, m.Name(), "", false}
-		logger.Noticef("start syncing: %s", m.Name())
+		logger.Noticef("开始同步: %s", m.Name())
 
 		Hooks := provider.Hooks()
 		rHooks := []jobHook{}
@@ -143,7 +143,7 @@ func (m *mirrorJob) Run(managerChan chan<- jobMessage, semaphore chan empty) err
 			stopASAP := false // stop job as soon as possible
 
 			if retry > 0 {
-				logger.Noticef("retry syncing: %s, retry: %d", m.Name(), retry)
+				logger.Noticef("重试同步: %s, 重试: %d", m.Name(), retry)
 			}
 			err := runHooks(Hooks, func(h jobHook) error { return h.preExec() }, "pre-exec")
 			if err != nil {
@@ -163,7 +163,7 @@ func (m *mirrorJob) Run(managerChan chan<- jobMessage, semaphore chan empty) err
 
 			select { // Wait until provider started or error happened
 			case err := <-syncDone:
-				logger.Errorf("failed to start provider %s: %s", m.Name(), err.Error())
+				logger.Errorf("无法启动同步程序 %s: %s", m.Name(), err.Error())
 				syncDone <- err // it will be read again later
 			case <-started:
 				logger.Debug("provider started")
@@ -177,16 +177,16 @@ func (m *mirrorJob) Run(managerChan chan<- jobMessage, semaphore chan empty) err
 			}
 			select {
 			case syncErr = <-syncDone:
-				logger.Debug("syncing done")
+				logger.Debug("同步完成")
 			case <-time.After(timeout):
-				logger.Notice("provider timeout")
+				logger.Notice("同步超时")
 				termErr = provider.Terminate()
-				syncErr = fmt.Errorf("%s timeout after %v", m.Name(), timeout)
+				syncErr = fmt.Errorf("%s 超时后 %v", m.Name(), timeout)
 			case <-kill:
 				logger.Debug("received kill")
 				stopASAP = true
 				termErr = provider.Terminate()
-				syncErr = errors.New("killed by manager")
+				syncErr = errors.New("管理员终止同步")
 			}
 			if termErr != nil {
 				logger.Errorf("failed to terminate provider %s: %s", m.Name(), termErr.Error())
@@ -201,7 +201,7 @@ func (m *mirrorJob) Run(managerChan chan<- jobMessage, semaphore chan empty) err
 
 			if syncErr == nil {
 				// syncing success
-				logger.Noticef("succeeded syncing %s", m.Name())
+				logger.Noticef("同步成功 %s", m.Name())
 				// post-success hooks
 				logger.Debug("post-success hooks")
 				err := runHooks(rHooks, func(h jobHook) error { return h.postSuccess() }, "post-success")
@@ -210,7 +210,7 @@ func (m *mirrorJob) Run(managerChan chan<- jobMessage, semaphore chan empty) err
 				}
 			} else {
 				// syncing failed
-				logger.Warningf("failed syncing %s: %s", m.Name(), syncErr.Error())
+				logger.Warningf("同步失败 %s: %s", m.Name(), syncErr.Error())
 				// post-fail hooks
 				logger.Debug("post-fail hooks")
 				err := runHooks(rHooks, func(h jobHook) error { return h.postFail() }, "post-fail")
@@ -231,7 +231,7 @@ func (m *mirrorJob) Run(managerChan chan<- jobMessage, semaphore chan empty) err
 
 			// gracefully exit
 			if stopASAP {
-				logger.Debug("No retry, exit directly")
+				logger.Debug("不重试，直接退出")
 				return nil
 			}
 			// continue to next retry
@@ -245,7 +245,7 @@ func (m *mirrorJob) Run(managerChan chan<- jobMessage, semaphore chan empty) err
 			defer func() { <-semaphore }()
 			runJobWrapper(kill, jobDone)
 		case <-bypassSemaphore:
-			logger.Noticef("Concurrent limit ignored by %s", m.Name())
+			logger.Noticef("并发限制被忽略 %s", m.Name())
 			runJobWrapper(kill, jobDone)
 		case <-kill:
 			jobDone <- empty{}

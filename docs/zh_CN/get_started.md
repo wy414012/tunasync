@@ -31,7 +31,7 @@ date: 2016-10-31 00:50:00
 > mkdir /tmp/tunasync
 ```
 
-编辑 `~/tunasync_demo/worker.conf`:
+编辑 `~/.config/tunasync/worker.conf`:
 
 ```conf
 [global]
@@ -42,7 +42,7 @@ concurrent = 10
 interval = 1
 
 [manager]
-api_base = "http://localhost:12345"
+api_base = "http://localhost:14242"
 token = ""
 ca_cert = ""
 
@@ -88,7 +88,7 @@ ca_cert = ""
 
 ```shell
 > tunasync manager --config ~/tunasync_demo/manager.conf
-> tunasync worker --config ~/tunasync_demo/worker.conf
+> tunasync worker --config ~/.config/tunasync/worker.conf
 ```
 
 本例中，镜像的数据在 `/tmp/tunasync/`。
@@ -98,7 +98,7 @@ ca_cert = ""
 查看同步状态
 
 ```shell
-> tunasynctl list -p 12345 --all
+> tunasynctl list -p 14242 --all
 ```
 
 tunasynctl 也支持配置文件。配置文件可以放在 `/etc/tunasync/ctl.conf` 或者 `~/.config/tunasync/ctl.conf` 两个位置，后者可以覆盖前者的配置值。

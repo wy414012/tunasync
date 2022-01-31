@@ -5,14 +5,14 @@ import (
 	"github.com/urfave/cli"
 )
 
-// A Config is the top-level toml-serializaible config struct
+// A Config 是顶级 toml-serializaible 配置结构
 type Config struct {
 	Debug  bool         `toml:"debug"`
 	Server ServerConfig `toml:"server"`
 	Files  FileConfig   `toml:"files"`
 }
 
-// A ServerConfig represents the configuration for HTTP server
+// A ServerConfig 表示 HTTP 服务器的配置
 type ServerConfig struct {
 	Addr    string `toml:"addr"`
 	Port    int    `toml:"port"`
@@ -20,7 +20,7 @@ type ServerConfig struct {
 	SSLKey  string `toml:"ssl_key"`
 }
 
-// A FileConfig contains paths to special files
+// A FileConfig 包含特殊文件的路径
 type FileConfig struct {
 	StatusFile string `toml:"status_file"`
 	DBFile     string `toml:"db_file"`
@@ -29,16 +29,16 @@ type FileConfig struct {
 	CACert string `toml:"ca_cert"`
 }
 
-// LoadConfig loads config from specified file
+// LoadConfig 从指定文件加载配置
 func LoadConfig(cfgFile string, c *cli.Context) (*Config, error) {
-
+	//默认配置
 	cfg := new(Config)
 	cfg.Server.Addr = "127.0.0.1"
 	cfg.Server.Port = 14242
 	cfg.Debug = false
-	cfg.Files.StatusFile = "/var/lib/tunasync/tunasync.json"
-	cfg.Files.DBFile = "/var/lib/tunasync/tunasync.db"
-	cfg.Files.DBType = "bolt"
+	cfg.Files.StatusFile = "$HOME/.config/tunasync/tunasync.json"
+	cfg.Files.DBFile = "redis://root:152819yy++@127.0.0.1:6379/0"
+	cfg.Files.DBType = "redis"
 
 	if cfgFile != "" {
 		if _, err := toml.DecodeFile(cfgFile, cfg); err != nil {

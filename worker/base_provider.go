@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// baseProvider is the base mixin of providers
+// baseProvider 是提供者的基础 mixin
 
 type baseProvider struct {
 	sync.Mutex
@@ -71,7 +71,7 @@ func (p *baseProvider) WorkingDir() string {
 			return s
 		}
 	}
-	panic("working dir is impossible to be non-exist")
+	panic("工作目录不可能不存在")
 }
 
 func (p *baseProvider) LogDir() string {
@@ -80,7 +80,7 @@ func (p *baseProvider) LogDir() string {
 			return s
 		}
 	}
-	panic("log dir is impossible to be unavailable")
+	panic("日志目录可能不可用")
 }
 
 func (p *baseProvider) LogFile() string {
@@ -89,7 +89,7 @@ func (p *baseProvider) LogFile() string {
 			return s
 		}
 	}
-	panic("log file is impossible to be unavailable")
+	panic("日志文件可能不可用")
 }
 
 func (p *baseProvider) AddHook(hook jobHook) {
@@ -131,7 +131,7 @@ func (p *baseProvider) prepareLogFile(append bool) error {
 	}
 	logFile, err := os.OpenFile(p.LogFile(), os.O_WRONLY|os.O_CREATE|appendMode, 0644)
 	if err != nil {
-		logger.Errorf("Error opening logfile %s: %s", p.LogFile(), err.Error())
+		logger.Errorf("打开日志文件时出错 %s: %s", p.LogFile(), err.Error())
 		return err
 	}
 	p.logFileFd = logFile
@@ -148,11 +148,11 @@ func (p *baseProvider) closeLogFile() (err error) {
 }
 
 func (p *baseProvider) Run(started chan empty) error {
-	panic("Not Implemented")
+	panic("未实现")
 }
 
 func (p *baseProvider) Start() error {
-	panic("Not Implemented")
+	panic("未实现")
 }
 
 func (p *baseProvider) IsRunning() bool {
@@ -162,19 +162,19 @@ func (p *baseProvider) IsRunning() bool {
 
 func (p *baseProvider) Wait() error {
 	defer func() {
-		logger.Debugf("set isRunning to false: %s", p.Name())
+		logger.Debugf("将 isRunning 设置为 false: %s", p.Name())
 		p.isRunning.Store(false)
 	}()
-	logger.Debugf("calling Wait: %s", p.Name())
+	logger.Debugf("调用等待: %s", p.Name())
 	return p.cmd.Wait()
 }
 
 func (p *baseProvider) Terminate() error {
 	p.Lock()
 	defer p.Unlock()
-	logger.Debugf("terminating provider: %s", p.Name())
+	logger.Debugf("终止提供商: %s", p.Name())
 	if !p.IsRunning() {
-		logger.Warningf("Terminate() called while IsRunning is false: %s", p.Name())
+		logger.Warningf("当 IsRunning 为 false 时调用 Terminate(): %s", p.Name())
 		return nil
 	}
 

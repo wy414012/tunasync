@@ -6,7 +6,7 @@ import (
 	"gopkg.in/op/go-logging.v1"
 )
 
-// InitLogger initilizes logging format and level
+// 初始化日志记录格式和级别
 func InitLogger(verbose, debug, withSystemd bool) {
 	var fmtString string
 	if withSystemd {

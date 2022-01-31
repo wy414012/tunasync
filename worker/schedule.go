@@ -51,12 +51,12 @@ func (q *scheduleQueue) AddJob(schedTime time.Time, job *mirrorJob) {
 	q.Lock()
 	defer q.Unlock()
 	if _, ok := q.jobs[job.Name()]; ok {
-		logger.Warningf("Job %s already scheduled, removing the existing one", job.Name())
+		logger.Warningf("工作流 %s 已安排，删除现有的", job.Name())
 		q.unsafeRemove(job.Name())
 	}
 	q.jobs[job.Name()] = true
 	q.list.Set(schedTime, job)
-	logger.Debugf("Added job %s @ %v", job.Name(), schedTime)
+	logger.Debugf("添加工作流 %s @ %v", job.Name(), schedTime)
 }
 
 // pop out the first job if it's time to run it
@@ -75,7 +75,7 @@ func (q *scheduleQueue) Pop() *mirrorJob {
 		job := first.Value().(*mirrorJob)
 		q.list.Delete(first.Key())
 		delete(q.jobs, job.Name())
-		logger.Debug("Popped out job %s @%v", job.Name(), t)
+		logger.Debug("跳出的工作流 %s @%v", job.Name(), t)
 		return job
 	}
 	return nil

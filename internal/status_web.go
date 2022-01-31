@@ -36,7 +36,7 @@ func (t *stampTime) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-// WebMirrorStatus is the mirror status to be shown in the web page
+// WebMirrorStatus 是要在网页中显示的镜像状态
 type WebMirrorStatus struct {
 	Name          string     `json:"name"`
 	IsMaster      bool       `json:"is_master"`
@@ -50,7 +50,7 @@ type WebMirrorStatus struct {
 	Scheduled     textTime   `json:"next_schedule"`
 	ScheduledTs   stampTime  `json:"next_schedule_ts"`
 	Upstream      string     `json:"upstream"`
-	Size          string     `json:"size"` // approximate size
+	Size          string     `json:"size"` // 大致尺寸
 }
 
 func BuildWebMirrorStatus(m MirrorStatus) WebMirrorStatus {

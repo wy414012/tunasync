@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-// A MirrorStatus represents a msg when
-// a worker has done syncing
+// MirrorStatus 代表一条消息，当
+// 工作流已完成同步
 type MirrorStatus struct {
 	Name        string     `json:"name"`
 	Worker      string     `json:"worker"`
@@ -23,7 +23,7 @@ type MirrorStatus struct {
 	ErrorMsg    string     `json:"error_msg"`
 }
 
-// A WorkerStatus is the information struct that describe
+// WorkerStatus 是描述信息的结构体
 // a worker, and sent from the manager to clients.
 type WorkerStatus struct {
 	ID           string    `json:"id"`

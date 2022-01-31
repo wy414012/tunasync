@@ -188,7 +188,7 @@ func newMirrorProvider(mirror mirrorConfig, cfg *Config) mirrorProvider {
 		p.isMaster = isMaster
 		provider = p
 	default:
-		panic(errors.New("Invalid mirror provider"))
+		panic(errors.New("无效的镜像提供程序"))
 	}
 
 	// Add Logging Hook
@@ -219,12 +219,12 @@ func newMirrorProvider(mirror mirrorConfig, cfg *Config) mirrorProvider {
 
 	addHookFromCmdList := func(cmdList []string, execOn uint8) {
 		if execOn != execOnSuccess && execOn != execOnFailure {
-			panic("Invalid option for exec-on")
+			panic("exec-on 的选项无效")
 		}
 		for _, cmd := range cmdList {
 			h, err := newExecPostHook(provider, execOn, cmd)
 			if err != nil {
-				logger.Errorf("Error initializing mirror %s: %s", mirror.Name, err.Error())
+				logger.Errorf("初始化镜像时出错 %s: %s", mirror.Name, err.Error())
 				panic(err)
 			}
 			provider.AddHook(h)

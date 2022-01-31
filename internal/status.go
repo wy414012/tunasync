@@ -42,7 +42,7 @@ func (s SyncStatus) String() string {
 func (s SyncStatus) MarshalJSON() ([]byte, error) {
 	strStatus := s.String()
 	if strStatus == "" {
-		return []byte{}, errors.New("Invalid status value")
+		return []byte{}, errors.New("无效的状态值")
 	}
 
 	return json.Marshal(strStatus)
@@ -66,7 +66,7 @@ func (s *SyncStatus) UnmarshalJSON(v []byte) error {
 	case `"disabled"`:
 		*s = Disabled
 	default:
-		return fmt.Errorf("Invalid status value: %s", string(v))
+		return fmt.Errorf("无效的状态值: %s", string(v))
 	}
 	return nil
 }

@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/codeskyblue/go-sh"
-	"golang.org/x/sys/unix"
-	"github.com/moby/moby/pkg/reexec"
 	cgv1 "github.com/containerd/cgroups"
+	"github.com/moby/moby/pkg/reexec"
+	"golang.org/x/sys/unix"
 )
 
 // runner is to run os commands giving command line, env and log file
@@ -60,7 +60,7 @@ func newCmdJob(provider mirrorProvider, cmdAndArgs []string, workingDir string, 
 		}
 		// set memlimit
 		if d.memoryLimit != 0 {
-		  args = append(args, "-m", fmt.Sprint(d.memoryLimit.Value()))
+			args = append(args, "-m", fmt.Sprint(d.memoryLimit.Value()))
 		}
 		// apply options
 		args = append(args, d.options...)
@@ -82,16 +82,16 @@ func newCmdJob(provider mirrorProvider, cmdAndArgs []string, workingDir string, 
 			args := cmdAndArgs[1:]
 			cmd = exec.Command(c, args...)
 		} else if len(cmdAndArgs) == 0 {
-			panic("Command length should be at least 1!")
+			panic("命令长度至少应为 1!")
 		}
 	}
 
 	if provider.Docker() == nil {
-		logger.Debugf("Executing command %s at %s", cmdAndArgs[0], workingDir)
+		logger.Debugf("执行命令 %s at %s", cmdAndArgs[0], workingDir)
 		if _, err := os.Stat(workingDir); os.IsNotExist(err) {
-			logger.Debugf("Making dir %s", workingDir)
+			logger.Debugf("创建工作目录 %s", workingDir)
 			if err = os.MkdirAll(workingDir, 0755); err != nil {
-				logger.Errorf("Error making dir %s: %s", workingDir, err.Error())
+				logger.Errorf("创建目录时出错 %s: %s", workingDir, err.Error())
 			}
 		}
 		cmd.Dir = workingDir
@@ -113,9 +113,9 @@ func (c *cmdJob) Start() error {
 		pipeW *os.File
 	)
 	if cg != nil {
-		logger.Debugf("Preparing cgroup sync pipes for job %s", c.provider.Name())
+		logger.Debugf("为作业准备 cgroup 同步管道 %s", c.provider.Name())
 		var err error
-		pipeR, pipeW, err = os.Pipe();
+		pipeR, pipeW, err = os.Pipe()
 		if err != nil {
 			return err
 		}
@@ -124,7 +124,7 @@ func (c *cmdJob) Start() error {
 		defer pipeW.Close()
 	}
 
-	logger.Debugf("Command start: %v", c.cmd.Args)
+	logger.Debugf("命令启动: %v", c.cmd.Args)
 	c.finished = make(chan empty, 1)
 
 	if err := c.cmd.Start(); err != nil {
@@ -139,7 +139,7 @@ func (c *cmdJob) Start() error {
 		}
 		pid := c.cmd.Process.Pid
 		if cg.cgCfg.isUnified {
-			if err := cg.cgMgrV2.AddProc(uint64(pid)); err != nil{
+			if err := cg.cgMgrV2.AddProc(uint64(pid)); err != nil {
 				if errors.Is(err, syscall.ESRCH) {
 					logger.Infof("Write pid %d to cgroup failed: process vanished, ignoring")
 				} else {
@@ -147,7 +147,7 @@ func (c *cmdJob) Start() error {
 				}
 			}
 		} else {
-			if err := cg.cgMgrV1.Add(cgv1.Process{Pid: pid}); err != nil{
+			if err := cg.cgMgrV1.Add(cgv1.Process{Pid: pid}); err != nil {
 				if errors.Is(err, syscall.ESRCH) {
 					logger.Infof("Write pid %d to cgroup failed: process vanished, ignoring")
 				} else {
