@@ -1,15 +1,10 @@
 [Unit]
 Description = TUNA mirrors sync worker
-After=network.target
+Wants=network.target
 
 [Service]
 Type=simple
-User=tunasync
-PermissionsStartOnly=true
-ExecStartPre=/usr/bin/cgcreate -t tunasync -a tunasync -g memory:tunasync
-ExecStart=/home/bin/tunasync worker -c /etc/tunasync/worker.conf --with-systemd
-ExecReload=/bin/kill -SIGHUP $MAINPID
-ExecStopPost=/usr/bin/cgdelete memory:tunasync
+ExecStart=/usr/bin/tunasync worker -c /etc/tunasync/worker.conf
 
 [Install]
 WantedBy=multi-user.target
